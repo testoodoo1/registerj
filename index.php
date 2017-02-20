@@ -1,6 +1,27 @@
 <!DOCTYPE html>
 <html>
     <head>
+<style type="text/stylesheet">
+body {
+    font-family:'Segoe UI';
+    font-size: 12pt;
+}
+header h1 {
+    font-size:12pt;
+    color: #fff;
+    background-color: #F39C12;
+    padding: 20px;
+}
+article {
+    width: 80%;
+    margin:auto;
+    margin-top:10px;
+}
+.thumbnail {
+    height: 10px;
+    margin: 10px;
+}
+</style>
         <title>Registration Form</title>
         <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7; IE=EmulateIE9">
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -95,6 +116,7 @@
                     <br>
                         <input id="files" name="files[]" type="file" multiple="multiple" required="" tabindex="2">
                         <div class="filename"></div>
+                        <output id="result">
                         <br>
                     <p class="contact">
                         <label for="phone">Mobile phone</label>
@@ -133,12 +155,33 @@
         </div>
     </body>
 <script type="text/javascript">
-$("input:file").change(function () {
-    var filenames = '';
-    for (var i = 0; i < this.files.length; i++) {
-        filenames += '<li> *'  + this.files[i].name + '</li>';
+function handleFileSelect() {
+    //Check File API support
+    if (window.File && window.FileList && window.FileReader) {
+
+        var files = event.target.files; //FileList object
+        var output = document.getElementById("result");
+
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            //Only pics
+            if (!file.type.match('image')) continue;
+
+            var picReader = new FileReader();
+            picReader.addEventListener("load", function (event) {
+                var picFile = event.target;
+                var div = document.createElement("div");
+                div.innerHTML = "<img class='thumbnail' src='" + picFile.result + "'" + "title='" + picFile.name + "'/>";
+                output.insertBefore(div, null);
+            });
+            //Read the image
+            picReader.readAsDataURL(file);
+        }
+    } else {
+        console.log("Your browser does not support File API");
     }
-    $(".filename").html('<ul>' + filenames + '</ul>');
-});
+}
+
+document.getElementById('files').addEventListener('change', handleFileSelect, false);
 </script>
 </html>
