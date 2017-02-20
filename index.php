@@ -2,24 +2,10 @@
 <html>
     <head>
 <style type="text/stylesheet">
-body {
-    font-family:'Segoe UI';
-    font-size: 12pt;
-}
-header h1 {
-    font-size:12pt;
-    color: #fff;
-    background-color: #F39C12;
-    padding: 20px;
-}
-article {
-    width: 80%;
-    margin:auto;
-    margin-top:10px;
-}
-.thumbnail {
-    height: 10px;
-    margin: 10px;
+.thumb {
+    border: 1px solid #000000;
+    height: 75px;
+    margin: 10px 5px 0 0;
 }
 </style>
         <title>Registration Form</title>
@@ -114,9 +100,9 @@ article {
                         <label for="photo">Photo</label>
                     </p>
                     <br>
-                        <input id="files" name="files[]" type="file" multiple="multiple" required="" tabindex="2">
-                        <div class="filename"></div>
-                        <output id="result">
+                        <input id="files" name="image" type="file" multiple="multiple" required="" tabindex="2">
+                        <div id='previewImg'></div>
+
                         <br>
                     <p class="contact">
                         <label for="phone">Mobile phone</label>
@@ -155,30 +141,32 @@ article {
         </div>
     </body>
 <script type="text/javascript">
-function handleFileSelect() {
-    //Check File API support
-    if (window.File && window.FileList && window.FileReader) {
+function handleFileSelect(evt) {
+    var files = evt.target.files; // FileList object
 
-        var files = event.target.files; //FileList object
-        var output = document.getElementById("result");
+    // Loop through the FileList and render image files as thumbnails.
+    for (var i = 0, f; f = files[i]; i++) {
 
-        for (var i = 0; i < files.length; i++) {
-            var file = files[i];
-            //Only pics
-            if (!file.type.match('image')) continue;
-
-            var picReader = new FileReader();
-            picReader.addEventListener("load", function (event) {
-                var picFile = event.target;
-                var div = document.createElement("div");
-                div.innerHTML = "<img class='thumbnail' src='" + picFile.result + "'" + "title='" + picFile.name + "'/>";
-                output.insertBefore(div, null);
-            });
-            //Read the image
-            picReader.readAsDataURL(file);
+        // Only process image files.
+        if (!f.type.match('image.*')) {
+            continue;
         }
-    } else {
-        console.log("Your browser does not support File API");
+
+        var reader = new FileReader();
+
+        // Closure to capture the file information.
+        reader.onload = (function (theFile) {
+            return function (e) {
+                // Render thumbnail.
+                var span = document.createElement('span');
+                span.innerHTML = ['<img class="thumb" src="', e.target.result,
+                    '" title="', escape(theFile.name), '"/>'].join('');
+                document.getElementById('previewImg').insertBefore(span, null);
+            };
+        })(f);
+
+        // Read in the image file as a data URL.
+        reader.readAsDataURL(f);
     }
 }
 
